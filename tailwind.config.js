@@ -15,11 +15,17 @@ export default {
 
     theme: {
         extend: {
-            fontFamily: {
-                sans: ["Figtree", ...defaultTheme.fontFamily.sans],
-            },
+          fontFamily: {
+            sans: ['Inter', ...defaultTheme.fontFamily.sans], // Add custom fonts
+          },
+          colors: {
+            primary: '#4F46E5', // Add custom colors
+            secondary: '#10B981',
+            danger: '#EF4444',
+          },
         },
-    },
+      },
 
     plugins: [forms],
 };
+

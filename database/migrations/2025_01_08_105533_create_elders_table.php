@@ -7,8 +7,8 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
-     */
+    * Run the migrations.
+    */
     public function up(): void
     {
         Schema::create('elders', function (Blueprint $table) {
@@ -24,15 +24,17 @@ return new class extends Migration
             $table->text('current_needs');
             $table->text('medical_history');
             $table->string('support_status');
+            //$table->string('photo_url')->nullable();
             $table->timestamps();
         });
     }
 
     /**
-     * Reverse the migrations.
-     */
+    * Reverse the migrations.
+    */
     public function down(): void
     {
         Schema::dropIfExists('elders');
     }
 };
+

@@ -2,73 +2,63 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Donation;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DonationController extends Controller
 {
-    // Display a list of donations
-    public function index()
-    {
-        $donations = Donation::with('supporter')->get();
-        return Inertia::render('Donations/Index', ['donations' => $donations]);
-    }
 
-    // Show the form for creating a new donation
-    public function create()
+    
+    public function index(Request $request)
     {
-        return Inertia::render('Donations/Create');
-    }
+        
+    $year = $request->input('year', now()->year);       // Get year from request or default to current year
+    $month = $request->input('month', now()->month);     // Get month from request or default to current month
+    $quarter = ceil($month / 3); // Calculate the quarter
+    $halfYear = ceil($month / 6); // Calculate the half-year
 
-    // Store a newly created donation in the database
-    public function store(Request $request)
-    {
-        $request->validate([
-            'supporter_id' => 'required|exists:supporters,id',
-            'amount' => 'required|numeric',
-            'date' => 'required|date',
-            'payment_method' => 'required|string',
-            'donation_type' => 'required|string',
+
+    $monthlyTotal = Donation::totalForMonth($year, $month);
+    $quarterlyTotal = Donation::totalForQuarter($year, $quarter);
+    $halfYearlyTotal = Donation::totalForHalfYear($year, $halfYear);
+    $yearlyTotal = Donation::totalForYear($year);
+    $monthlyTotal = (float) $monthlyTotal;
+    $quarterlyTotal = (float) $quarterlyTotal;
+    $halfYearlyTotal = (float) $halfYearlyTotal;
+    $yearlyTotal = (float) $yearlyTotal;
+    
+    return Inertia::render('Donations/Index', [
+        'monthlyTotal' => $monthlyTotal,
+    'quarterlyTotal' => $quarterlyTotal,
+    'halfYearlyTotal' => $halfYearlyTotal,
+    'yearlyTotal' => $yearlyTotal,
+    'year' => (int) $year,  // Cast to integer
+    'month' => (int) $month, // Cast to integer
+    ]);
+    
+    
+        $year = $request->input('year', now()->year);       // Get year from request or default to current year
+        $month = $request->input('month', now()->month);     // Get month from request or default to current month
+        $quarter = ceil($month / 3); // Calculate the quarter
+        $halfYear = ceil($month / 6); // Calculate the half-year
+
+
+        $monthlyTotal = Donation::totalForMonth($year, $month);
+        $quarterlyTotal = Donation::totalForQuarter($year, $quarter);
+        $halfYearlyTotal = Donation::totalForHalfYear($year, $halfYear);
+        $yearlyTotal = Donation::totalForYear($year);
+
+        
+        return Inertia::render('Donations/Index', [
+            'monthlyTotal' => $monthlyTotal,
+            'quarterlyTotal' => $quarterlyTotal,
+            'halfYearlyTotal' => $halfYearlyTotal,
+            'yearlyTotal' => $yearlyTotal,
+            'year' => $year,
+            'month' => $month,
         ]);
-
-        Donation::create($request->all());
-
-        return redirect()->route('donations.index');
     }
 
-    // Display the specified donation
-    public function show(Donation $donation)
-    {
-        return Inertia::render('Donations/Show', ['donation' => $donation]);
-    }
-
-    // Show the form for editing the specified donation
-    public function edit(Donation $donation)
-    {
-        return Inertia::render('Donations/Edit', ['donation' => $donation]);
-    }
-
-    // Update the specified donation in the database
-    public function update(Request $request, Donation $donation)
-    {
-        $request->validate([
-            'supporter_id' => 'required|exists:supporters,id',
-            'amount' => 'required|numeric',
-            'date' => 'required|date',
-            'payment_method' => 'required|string',
-            'donation_type' => 'required|string',
-        ]);
-
-        $donation->update($request->all());
-
-        return redirect()->route('donations.index');
-    }
-
-    // Remove the specified donation from the database
-    public function destroy(Donation $donation)
-    {
-        $donation->delete();
-        return redirect()->route('donations.index');
-    }
+    // ... other controller methods
 }

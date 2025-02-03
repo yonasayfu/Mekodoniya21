@@ -26,8 +26,12 @@ return new class extends Migration
             $table->text('bank_details');
             $table->string('visitation_preference');
             $table->timestamps();
+            
         });
+
+
     }
+    
 
     /**
      * Reverse the migrations.

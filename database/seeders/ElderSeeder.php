@@ -15,6 +15,7 @@ class ElderSeeder extends Seeder
     {
        
         Elder::factory()->count(10)->create();
+        
     
     }
 }

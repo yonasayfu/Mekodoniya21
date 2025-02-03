@@ -1,22 +1,23 @@
 <?php
-
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class PhotoGallery extends Model
 {
-    //
     use HasFactory;
 
     protected $fillable = [
-        'event_id', 'photo_url', 'description',
+        'photo_url',
+        'description',
+        'imageable_id',
+        'imageable_type',
     ];
 
-    // Relationships
-    public function event()
+    // Define the polymorphic relationship
+    public function imageable()
     {
-        return $this->belongsTo(Event::class);
+        return $this->morphTo();
     }
 }

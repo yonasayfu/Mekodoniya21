@@ -1,88 +1,41 @@
 <?php
-
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 use App\Models\Supporter;
+use Inertia\Inertia;
 
 class SupporterController extends Controller
 {
-   // Display a list of supporters
-   public function index()
-   {
-       $supporters = Supporter::all();
-       return Inertia::render('Supporters/Index', ['supporters' => $supporters]);
-   }
+    public function index()
+    {
+        $supporters = Supporter::query()
+            ->whereHas('donationAgreements', fn($q) => $q->where('public_profile', false))
+            ->with(['elderSupporterMatches.elder', 'donationAgreements', 'testimonial'])
+            ->get()
+            ->shuffle(); // Randomize display order
 
-   // Show the form for creating a new supporter
-   public function create()
-   {
-       return Inertia::render('Supporters/Create');
-   }
+        return Inertia::render('Supporters/Index', [
+            'supporters' => $supporters->map(function ($supporter) {
+                return [
+                    'id' => $supporter->id,
+                    'name' => $supporter->name,
+                    'photo_url' => $supporter->photo_url, // Ensure this field is correctly set
+                    'contribution' => $supporter->donationAgreements->sum('monthly_donation_amount'),
+                    'support_type' => $supporter->support_type,
+                    'visitations_reference' => $supporter->visitations_reference,
+                    'elders' => $supporter->elderSupporterMatches->map(fn($m) => [
+                        'name' => $m->elder->name,
+                        'photo' => $m->elder->photo_url,
+                    ]),
+                    'testimonial' => $supporter->testimonial->content ?? null,
+                ];
+            }),
+        ]);
+    }
 
-   // Store a newly created supporter in the database
-   public function store(Request $request)
-   {
-       $request->validate([
-           'name' => 'required|string|max:255',
-           'age' => 'required|integer',
-           'gender' => 'required|string',
-           'address' => 'required|string',
-           'phone_number' => 'required|string',
-           'email' => 'required|email',
-           'support_type' => 'required|string',
-           'contribution_amount' => 'required|numeric',
-           'commit_duration' => 'required|integer',
-           'start_date' => 'required|date',
-           'bank_details' => 'nullable|string',
-           'visitation_preference' => 'nullable|string',
-       ]);
-
-       Supporter::create($request->all());
-
-       return redirect()->route('supporters.index');
-   }
-
-   // Display the specified supporter
-   public function show(Supporter $supporter)
-   {
-       return Inertia::render('Supporters/Show', ['supporter' => $supporter]);
-   }
-
-   // Show the form for editing the specified supporter
-   public function edit(Supporter $supporter)
-   {
-       return Inertia::render('Supporters/Edit', ['supporter' => $supporter]);
-   }
-
-   // Update the specified supporter in the database
-   public function update(Request $request, Supporter $supporter)
-   {
-       $request->validate([
-           'name' => 'required|string|max:255',
-           'age' => 'required|integer',
-           'gender' => 'required|string',
-           'address' => 'required|string',
-           'phone_number' => 'required|string',
-           'email' => 'required|email',
-           'support_type' => 'required|string',
-           'contribution_amount' => 'required|numeric',
-           'commit_duration' => 'required|integer',
-           'start_date' => 'required|date',
-           'bank_details' => 'nullable|string',
-           'visitation_preference' => 'nullable|string',
-       ]);
-
-       $supporter->update($request->all());
-
-       return redirect()->route('supporters.index');
-   }
-
-   // Remove the specified supporter from the database
-   public function destroy(Supporter $supporter)
-   {
-       $supporter->delete();
-       return redirect()->route('supporters.index');
-   }
+    public function show(Supporter $supporter)
+    {
+        $supporter->load(['donations', 'visitLogs', 'elderSupporterMatches', 'donationAgreements']);
+        return Inertia::render('Supporters/Show', ['supporter' => $supporter]);
+    }
 }

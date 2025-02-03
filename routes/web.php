@@ -39,6 +39,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // Resources (Alphabetical Order)
+
 Route::resource('caterings', CateringController::class);
 Route::resource('donation-agreements', DonationAgreementController::class);
 Route::resource('donations', DonationController::class);

@@ -6,9 +6,6 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('donations', function (Blueprint $table) {
@@ -16,15 +13,11 @@ return new class extends Migration
             $table->foreignId('supporter_id')->constrained('supporters')->onDelete('cascade');
             $table->decimal('amount', 10, 2);
             $table->date('date');
-            $table->string('payment_method');
-            $table->string('donation_type');
+            $table->decimal('total_needed', 10, 2)->nullable(); // Make nullable if needed
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('donations');

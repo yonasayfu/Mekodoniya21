@@ -16,6 +16,7 @@ class SupporterFactory extends Factory
     {
         return [
             'name' => $this->faker->name,
+            'photo_url' => 'https://picsum.photos/200/300', // Updated random photo URL
             'age' => $this->faker->numberBetween(18, 80),
             'gender' => $this->faker->randomElement(['male', 'female']),
             'address' => $this->faker->address,

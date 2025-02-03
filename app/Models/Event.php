@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class Event extends Model
 {
@@ -11,8 +11,19 @@ class Event extends Model
     use HasFactory;
 
     protected $fillable = [
-        'name', 'type', 'date', 'start_time', 'end_time', 'location', 'facility_id',
-        'staff_id', 'catering_id', 'custom_requirements',
+        'name',
+        'type',
+        'category',
+        'date',
+        'start_time',
+        'end_time',
+        'location',
+        'facility_id',
+        'staff_id',
+        'catering_id',
+        'custom_requirements',
+        'image_url',
+        'status',
     ];
 
     // Relationships
@@ -39,5 +50,9 @@ class Event extends Model
     public function photoGalleries()
     {
         return $this->hasMany(PhotoGallery::class);
+    }
+    public function photos()
+    {
+        return $this->morphMany(PhotoGallery::class, 'imageable');
     }
 }

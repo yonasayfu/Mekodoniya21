@@ -1,5 +1,27 @@
 <?php
 
+// namespace App\Http\Controllers;
+
+// use Illuminate\Http\Request;
+// use App\Models\Elder;
+// use Inertia\Inertia;
+
+// class ElderController extends Controller
+// {
+//     // Display a list of elders
+//     public function index()
+//     {
+//         $elders = Elder::all();
+//         return Inertia::render('Elders/Index', ['elders' => $elders]);
+//     }
+
+//     // Display the specified elder
+//     public function show(Elder $elder)
+//     {
+//         return Inertia::render('Elders/Show', ['elder' => $elder]);
+//     }
+// }
+
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
@@ -8,79 +30,42 @@ use Inertia\Inertia;
 
 class ElderController extends Controller
 {
-    // Display a list of elders
-    public function index()
+    public function index(Request $request)
     {
-        $elders = Elder::all();
-        return Inertia::render('Elders/Index', ['elders' => $elders]);
-    }
+        // Get filter parameters from the request
+        $filters = $request->only(['age', 'gender', 'support_status', 'current_needs']);
 
-    // Show the form for creating a new elder
-    public function create()
-    {
-        return Inertia::render('Elders/Create');
-    }
+        // Build the query based on filters
+        $elders = Elder::query()
+            ->when($filters['age'] ?? null, function ($query, $age) {
+                $query->where('age', '>=', $age); // Filter by minimum age
+            })
+            ->when($filters['gender'] ?? null, function ($query, $gender) {
+                $query->where('gender', $gender); // Filter by gender
+            })
+            ->when($filters['support_status'] ?? null, function ($query, $supportStatus) {
+                $query->where('support_status', $supportStatus); // Filter by support status
+            })
+            ->when($filters['current_needs'] ?? null, function ($query, $currentNeeds) {
+                $query->where('current_needs', 'like', '%' . $currentNeeds . '%'); // Filter by current needs
+            })
+            ->get();
 
-    // Store a newly created elder in the database
-    public function store(Request $request)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'age' => 'required|integer',
-            'gender' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string',
-            'phone_number' => 'required|string',
-            'email' => 'required|email',
-            'background_story' => 'nullable|string',
-            'current_needs' => 'nullable|string',
-            'medical_history' => 'nullable|string',
-            'support_status' => 'nullable|string',
+        // Pass the elders and filters to the frontend
+        return Inertia::render('Elders/Index', [
+            'elders' => $elders,
+            'filters' => $filters, // Pass filters back to the frontend for UI consistency
         ]);
-
-        Elder::create($request->all());
-
-        return redirect()->route('elders.index');
     }
 
-    // Display the specified elder
+    // Display the details of a specific elder
     public function show(Elder $elder)
     {
-        return Inertia::render('Elders/Show', ['elder' => $elder]);
-    }
+        // Load the elder's photos
+        $elder->load('photos');
 
-    // Show the form for editing the specified elder
-    public function edit(Elder $elder)
-    {
-        return Inertia::render('Elders/Edit', ['elder' => $elder]);
-    }
-
-    // Update the specified elder in the database
-    public function update(Request $request, Elder $elder)
-    {
-        $request->validate([
-            'name' => 'required|string|max:255',
-            'age' => 'required|integer',
-            'gender' => 'required|string',
-            'date_of_birth' => 'required|date',
-            'address' => 'required|string',
-            'phone_number' => 'required|string',
-            'email' => 'required|email',
-            'background_story' => 'nullable|string',
-            'current_needs' => 'nullable|string',
-            'medical_history' => 'nullable|string',
-            'support_status' => 'nullable|string',
+        return Inertia::render('Elders/Show', [
+            'elder' => $elder,
         ]);
-
-        $elder->update($request->all());
-
-        return redirect()->route('elders.index');
-    }
-
-    // Remove the specified elder from the database
-    public function destroy(Elder $elder)
-    {
-        $elder->delete();
-        return redirect()->route('elders.index');
     }
 }

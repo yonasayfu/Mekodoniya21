@@ -2,12 +2,9 @@
 
 namespace Database\Factories;
 
-use Illuminate\Database\Eloquent\Factories\Factory;
 use App\Models\DonationAgreement;
+use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\DonationAgreement>
- */
 class DonationAgreementFactory extends Factory
 {
     protected $model = DonationAgreement::class;
@@ -17,14 +14,22 @@ class DonationAgreementFactory extends Factory
         return [
             'supporter_id' => \App\Models\Supporter::factory(),
             'full_name' => $this->faker->name,
-            'email_address' => $this->faker->unique()->safeEmail,
+            'email_address' => $this->faker->safeEmail,
             'phone_number' => $this->faker->phoneNumber,
-            'monthly_donation_amount' => $this->faker->randomFloat(2, 10, 1000),
-            'bank_name' => $this->faker->word,
+            'address' => $this->faker->address,
+            'donation_type' => $this->faker->randomElement(['one-time', 'recurring']),
+            'donation_amount' => $this->faker->randomFloat(2, 10, 1000),
+            'recurring_interval' => $this->faker->randomElement(['monthly', 'quarterly', 'half-yearly', 'yearly']),
+            'bank_name' => $this->faker->company,
             'account_number' => $this->faker->bankAccountNumber,
-            'preferred_start_date' => $this->faker->date,
+            'account_holder_name' => $this->faker->name,
             'agreement_text' => $this->faker->paragraph,
-            'pdf_file' => $this->faker->optional()->filePath(),
+            'terms_and_conditions' => true,
+            'additional_comments' => $this->faker->sentence,
+            'signed_agreement_pdf' => null,
+            'bank_form_pdf' => null,
+            'summary_pdf' => null, // Added this field
+            'public_profile' => $this->faker->boolean,
         ];
     }
 }
